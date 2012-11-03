@@ -14,7 +14,7 @@ module Spree
         line_item = LineItem.new(quantity: 1)
         line_item.gift_card = @gift_card
         line_item.variant = @gift_card.variant
-        line_item.price = @gift_card.variant.price
+        line_item.price = @gift_card.original_value
         # Add to order
         order = current_order(true)
         order.line_items << line_item

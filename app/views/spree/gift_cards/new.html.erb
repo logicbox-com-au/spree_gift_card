@@ -1,11 +1,9 @@
 <h1><%= t(:gift_cards) %></h1>
 <%= render "spree/shared/error_messages", :target => @gift_card %>
 <%= form_for @gift_card do |f| %>
-  <p>
-    <% @gift_card_variants.each do |card| %>
-      <%= f.radio_button :variant_id, card.id %> <%= number_to_currency(card.price) %>
-    <% end %>
-  </p>
+   <%= f.label :original_value, t("price") %> <span class="required">*</span><br />
+    <%= f.text_field :original_value %>
+    
   <%= f.field_container :email do %>
     <%= f.label :email, t("email") %> <span class="required">*</span><br />
     <%= f.text_field :email %>
