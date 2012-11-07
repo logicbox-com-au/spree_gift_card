@@ -10,8 +10,6 @@ module Spree
     belongs_to :variant
     belongs_to :line_item
 
-       after_save :inserton
-
     has_many :transactions, class_name: 'Spree::GiftCardTransaction'
 
     validates :code,               presence: true, uniqueness: true
@@ -23,7 +21,9 @@ module Spree
     before_validation :generate_code, on: :create
     before_validation :set_calculator, on: :create
     before_validation :set_values, on: :create
-
+    
+    after_save :update_references
+    
     calculated_adjustments
 
     def apply(order)
@@ -70,38 +70,32 @@ module Spree
       self.calculator = Spree::Calculator::GiftCard.new
     end
     
-  def inserton
-         ActiveRecord::Base.connection.execute "DROP TRIGGER IF EXISTS INSERTGIFTS ON spree_gift_cards"
-                 sql= <<-SQL
-           CREATE OR REPLACE FUNCTION inserton()                                                                
-                      RETURNS TRIGGER                                                 
-                      AS                                       
-                      $TRIGGER_Event_Type$
-                       BEGIN   
-                         insert into spree_products(name,available_on, permalink,meta_description,created_at,updated_at,count_on_hand,is_gift_card) values('GIFT CERTIFICATES',(SELECT CURRENT_TIMESTAMP),'GIFT CERTIFICATES','GIFT CERTIFICATES',(SELECT CURRENT_TIMESTAMP),(SELECT CURRENT_TIMESTAMP),1,'t');
-                         insert into spree_variants(id,sku,price,product_id)values((select  id from spree_products ORDER BY id DESC LIMIT 1),'GIFTCERTIFICATES',(SELECT original_value FROM spree_gift_cards ORDER BY id DESC LIMIT 1),(select  id from spree_products ORDER BY id DESC LIMIT 1));
-                         update spree_gift_cards set variant_id=(select id from spree_products where name='GIFT CERTIFICATES' LIMIT 1)where id=(SELECT id FROM spree_gift_cards ORDER BY id DESC LIMIT 1);
-                         update spree_line_items set variant_id=(select id from spree_variants ORDER BY id DESC LIMIT 1) WHERE id=(select "id" FROM spree_line_items ORDER BY created_at DESC LIMIT 1);
-                         UPDATE spree_gift_cards SET line_item_id = ( SELECT ID FROM spree_line_items WHERE variant_id = ( SELECT ID FROM spree_variants ORDER BY ID DESC LIMIT 1 ) ORDER BY ID DESC LIMIT 1 ) WHERE ID = ( SELECT ID FROM spree_gift_cards ORDER BY ID DESC LIMIT 1 );
-                         return new;               
-             END;
-         $TRIGGER_Event_Type$ 
-         LANGUAGE plpgsql;
-         
-        DROP TRIGGER IF EXISTS INSERTGIFTS ON spree_gift_cards;
-        
-        create trigger INSERTGIFTS BEFORE INSERT ON spree_gift_cards  
-        FOR EACH ROW EXECUTE PROCEDURE inserton();
-        SQL
-        ActiveRecord::Base.connection.execute sql          
-    end
     
   def set_values
-    #self.current_value=self.variant.try(:price)
-   # self.original_value =self.variant.try(:price)
         self.current_value  =self.original_value
-        self.original_value = self.original_value
+#create new product as gift_certificate
+             product=Product.new()
+             product.name = "GIFT CERTIFICATE"
+             product.description = "Celebrate this X'Mas with gourmetgoldmine.com.au"
+             product.sku = "GIFT"
+             product.is_gift_card = "t"
+             product.master.price = self.original_value
+             product.available_on = DateTime.now - 1.day
+             product.deleted_at = DateTime.now + 365.day
+             product.save!
+#get master variant_id of the new product
         self.variant_id=ActiveRecord::Base.connection.execute 'select  id from spree_variants ORDER BY id DESC LIMIT 1'
       end
+      
+      def update_references
+#update the count of new product
+        ActiveRecord::Base.connection.execute 'UPDATE spree_products SET count_on_hand=1 WHERE "id"=(SELECT "id" FROM spree_products ORDER BY "id" DESC LIMIT 1)'
+#update line_items with new product_id and variant_id
+        ActiveRecord::Base.connection.execute 'UPDATE spree_line_items SET variant_id=(select  id from spree_variants ORDER BY id DESC LIMIT 1) WHERE "id"=(select  id from spree_line_items ORDER BY id DESC LIMIT 1)'
+#update gift_cards with new products ids       
+       ActiveRecord::Base.connection.execute 'UPDATE spree_gift_cards SET variant_id = ( SELECT "id" FROM spree_variants ORDER BY "id" DESC LIMIT 1 ), line_item_id = ( SELECT "id" FROM spree_line_items ORDER BY "id" DESC LIMIT 1 ) WHERE "id" = ( SELECT "id" FROM spree_gift_cards ORDER BY "id" DESC LIMIT 1 )'
+      end
+      
+
   end
 end
