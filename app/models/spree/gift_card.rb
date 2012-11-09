@@ -83,17 +83,17 @@ module Spree
              product.available_on = DateTime.now - 1.day
              product.deleted_at = DateTime.now + 365.day
              product.save!
-#get master variant_id of the new product
-        self.variant_id=ActiveRecord::Base.connection.execute 'select  id from spree_variants ORDER BY id DESC LIMIT 1'
+        #get master variant_id of the new product
+        self.variant_id=ActiveRecord::Base.connection.execute 'select  id from spree_variants WHERE sku=\'GIFT\' ORDER BY id DESC LIMIT 1'
       end
       
       def update_references
 #update the count of new product
-        ActiveRecord::Base.connection.execute 'UPDATE spree_products SET count_on_hand=1 WHERE "id"=(SELECT "id" FROM spree_products ORDER BY "id" DESC LIMIT 1)'
-#update line_items with new product_id and variant_id
-        ActiveRecord::Base.connection.execute 'UPDATE spree_line_items SET variant_id=(select  id from spree_variants ORDER BY id DESC LIMIT 1) WHERE "id"=(select  id from spree_line_items ORDER BY id DESC LIMIT 1)'
-#update gift_cards with new products ids       
-       ActiveRecord::Base.connection.execute 'UPDATE spree_gift_cards SET variant_id = ( SELECT "id" FROM spree_variants ORDER BY "id" DESC LIMIT 1 ), line_item_id = ( SELECT "id" FROM spree_line_items ORDER BY "id" DESC LIMIT 1 ) WHERE "id" = ( SELECT "id" FROM spree_gift_cards ORDER BY "id" DESC LIMIT 1 )'
+        ActiveRecord::Base.connection.execute 'UPDATE spree_products SET count_on_hand=1 WHERE "id"=(SELECT "id" FROM spree_products WHERE "name"=\'GIFT CERTIFICATE\' ORDER BY "id" DESC LIMIT 1)'
+     #update line_items with new product_id and variant_id   
+ActiveRecord::Base.connection.execute 'UPDATE spree_line_items SET variant_id=(select  id from spree_variants WHERE sku= \'GIFT\' ORDER BY id DESC LIMIT 1) WHERE "id"=(select  id from spree_line_items WHERE variant_id=1 ORDER BY id DESC LIMIT 1)'
+   #update gift_cards with new products ids   
+     ActiveRecord::Base.connection.execute 'UPDATE spree_gift_cards SET variant_id = ( SELECT "id" FROM spree_variants WHERE sku= \'GIFT\' ORDER BY "id" DESC LIMIT 1 ), line_item_id = ( SELECT "id" FROM spree_line_items ORDER BY "id" DESC LIMIT 1 ) WHERE "id" = ( SELECT "id" FROM spree_gift_cards ORDER BY "id" DESC LIMIT 1 )'
       end
       
 

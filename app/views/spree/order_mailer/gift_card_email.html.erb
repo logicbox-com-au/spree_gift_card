@@ -1,3 +1,33 @@
-<p>Hi <%= @gift_card.name %>,</p>
-<p><%= @gift_card.note %></p>
-<p>To use your <%= number_to_currency @gift_card.price %> Gift Card enter the following Gift Code during checkout: <%= @gift_card.code %></p>
+<p><center><font color="#3FC7F4" face="verdana,arial,sans-serif" size ="4"><b>Congratulations!  You have received a gift certificates for <%= @gift_card.original_value %> from,</center></p>
+<center>
+<p><%= @gift_card.name %></p></font>
+<font color="#3FC7F4" face="verdana,arial,sans-serif">
+<p> Please enjoy your voucher at our on-line store,<a href="http://www.gourmetgoldmine.com.au">www.gourmetgoldmine.com.au</a></p>
+<p> We hope you can source all the hard-to-find ingredients and utensils you've been looking for.</p>
+</font>
+
+
+<div align="center"><table cellpadding="0" width="400" cellspacing="0"><tr>
+<td><a href="/assets/store/Layer-Cake.jpg" target="_blank"><img src="/assets/store/Layer-Cake.jpg" width="128" height="128" border="0"></a></td>
+<td> </td><td> </td><td> </td>
+<td><a href="/assets/store/rose-buds.jpg" target="_blank"><img src="/assets/store/rose-buds.jpg"  width="128" height="128" border="0"></a></td>
+<td> </td><td> </td><td> </td>
+<td><a href="/assets/store/lemon-myrt.jpg" target="_blank"><img src="/assets/store/lemon-myrt.jpg" width="128" height="128" border="0"></a></td>
+<td> </td><td> </td><td> </td>
+<td><a href="/assets/store/vinegar-raspberry.jpg" target="_blank"><img src="/assets/store/vinegar-raspberry.jpg" width="128" height="128" border="0"></a></td>
+<td> </td><td> </td><td> </td>
+<td><a href="/assets/store/Preserved-Lemons.jpg" target="_blank"><img src="/assets/store/Preserved-Lemons.jpg" width="128" height="128" border="0"></a></td>
+</tr></table></div>
+
+<p>
+	</p>
+
+ <a href="/"><img alt="gourmet" src="/assets/store/gourmet.png" /></a>
+ <p>
+ 	 <font color="#3FC7F4" size ="6"><h2><div id="snippet_1">you're ready to cook!</div></font></h2>
+ </p>
+<font color="C90B2B" face="verdana,arial,sans-serif">
+<p> Enter code  <%=@gift_card.code%> at the checkout to redeem your <%= @gift_card.original_value %> value. </p>
+<p> Voucher expires On </p>
+<p> please see the website ( </font><font color="#3FC7F4"><a href="http://www.gourmetgoldmine.com.au/customer-service">http://www.gourmetgoldmine.com.au/customer-service</a> </font>) <font color="C90B2B">for full terms and conditions.</p>
+</b></center></font>

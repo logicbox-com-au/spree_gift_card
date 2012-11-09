@@ -30,16 +30,6 @@ Spree::Order.class_eval do
     !! adjustments.gift_card.reload.detect { |credit| credit.originator_id == gift_card.id }
   end
 
- # Override shipping for gift cards
-  def has_available_shipment
-    self.line_items.each do |li|
-    unless li.gift_card
-         return unless :address == state_name.to_sym
-         return unless ship_address && ship_address.valid?
-         errors.add(:base, :no_shipping_methods_available) if available_shipping_methods.empty?
-       end
-      end
-      return true
-  end
+ 
 
 end
