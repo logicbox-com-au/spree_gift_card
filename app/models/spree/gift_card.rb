@@ -89,7 +89,7 @@ module Spree
       
       def update_references
         #update the count of new product & set shipping category
-        ActiveRecord::Base.connection.execute 'UPDATE spree_products SET count_on_hand=1,shipping_category_id=(SELECT ID FROM spree_shipping_methods WHERE "name"=\'Gift\') WHERE "id"=(SELECT "id" FROM spree_products WHERE "name"=\'GIFT CERTIFICATE\' ORDER BY "id" DESC LIMIT 1)'
+        ActiveRecord::Base.connection.execute 'UPDATE spree_products SET count_on_hand=1,shipping_category_id=(SELECT ID FROM spree_shipping_categories WHERE "name"=\'Free Shipping\') WHERE "id"=(SELECT "id" FROM spree_products WHERE "name"=\'GIFT CERTIFICATE\' ORDER BY "id" DESC LIMIT 1)'
        #update line_items with new product_id and variant_id   
        ActiveRecord::Base.connection.execute 'UPDATE spree_line_items SET variant_id=(select  id from spree_variants WHERE sku= \'GIFT\' ORDER BY id DESC LIMIT 1) WHERE "id"=(select  id from spree_line_items WHERE variant_id=1 ORDER BY id DESC LIMIT 1)'
        #update gift_cards with new products ids   
