@@ -26,6 +26,6 @@
  </p>
 <font color="C90B2B" face="verdana,arial,sans-serif">
 <p> Enter code  <%=@gift_card.code%> at the checkout to redeem your <%= @gift_card.original_value %> value. </p>
-<p> Voucher expires On </p>
+<p> Voucher expires On <%=Date.today + 365.day%></p>
 <p> please see the website ( </font><font color="#3FC7F4"><a href="http://www.gourmetgoldmine.com.au/customer-service">http://www.gourmetgoldmine.com.au/customer-service</a> </font>) <font color="C90B2B">for full terms and conditions.</p>
 </b></center></font>
