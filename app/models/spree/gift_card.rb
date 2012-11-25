@@ -62,7 +62,7 @@ module Spree
 
     def generate_code
       until self.code.present? && self.class.where(code: self.code).count == 0
-        self.code = Digest::SHA1.hexdigest([Time.now, rand].join)[1..8]
+        self.code = Digest::SHA1.hexdigest([Time.now, rand].join)
       end
     end
 
@@ -77,7 +77,7 @@ module Spree
              product=Product.new()
              product.name = "GIFT CERTIFICATE"
              product.description = "Gourmet Goldmine Gift Certificate"
-             product.sku = "GG"
+             product.sku = "GIFT"
              product.is_gift_card = "t"
              product.master.price = self.original_value
              product.available_on = DateTime.now - 1.day
