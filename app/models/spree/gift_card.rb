@@ -76,7 +76,7 @@ module Spree
              #create new product as gift_certificate
              product=Product.new()
              product.name = "GIFT CERTIFICATE"
-             product.description = "Celebrate this X'Mas with gourmetgoldmine.com.au"
+             product.description = "Gourmet Goldmine Gift Certificate"
              product.sku = "GIFT"
              product.is_gift_card = "t"
              product.master.price = self.original_value

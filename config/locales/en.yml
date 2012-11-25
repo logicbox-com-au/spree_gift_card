@@ -6,4 +6,5 @@ en:
   gift_code_applied: 'Gift code has been successfully applied to your order.'
   gift_code_not_found: "The gift code you entered doesn't exist. Please try again."
   is_gift_card: "is gift card"
+  recipient_email: "Recipient email"
   recipient_name: "Recipient name"
