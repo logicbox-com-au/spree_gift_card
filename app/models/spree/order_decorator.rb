@@ -30,6 +30,73 @@ Spree::Order.class_eval do
     !! adjustments.gift_card.reload.detect { |credit| credit.originator_id == gift_card.id }
   end
 
- 
+  # order state machine (see http://github.com/pluginaweek/state_machine/tree/master for details)
+    state_machine :initial => 'cart', :use_transactions => false do
 
+      event :next do
+        transition :from => 'cart',     :to => 'address'
+        transition :from => 'address',  :to => 'delivery'
+        transition :from => 'delivery', :to => 'payment', :if => :payment_required?
+        transition :from => 'payment', :to => 'complete'
+        transition :from => 'confirm',  :to => 'complete'
+
+        # note: some payment methods will not support a confirm step
+        transition :from => 'payment',  :to => 'confirm',
+                                        :if => Proc.new { |order| order.payment_method && order.payment_method.payment_profiles_supported? }
+
+        transition :from => 'payment', :to => 'complete'
+      end
+
+      event :cancel do
+        transition :to => 'canceled', :if => :allow_cancel?
+      end
+      event :return do
+        transition :to => 'returned', :from => 'awaiting_return', :unless=>:awaiting_returns?
+      end
+      event :resume do
+        transition :to => 'resumed', :from => 'canceled', :if => :allow_resume?
+      end
+      event :authorize_return do
+        transition :to => 'awaiting_return'
+      end
+
+      before_transition :to => 'complete' do |order|
+        begin
+          order.process_payments!
+        rescue Core::GatewayError
+          !!Spree::Config[:allow_checkout_on_gateway_error]
+        end
+      end
+
+      before_transition :to => ['delivery'] do |order|
+        order.shipments.each { |s| s.destroy unless s.shipping_method.available_to_order?(order) }
+      end
+
+      after_transition :to => 'complete', :do => :finalize!
+      after_transition :to => 'delivery', :do => :create_tax_charge!
+      before_transition :to => 'delivery',  :do => :set_default_shipping_method
+      after_transition :to => 'resumed',  :do => :after_resume
+      after_transition :to => 'canceled', :do => :after_cancel
+    end
+
+    def check_gift_card
+      line_items.each do |line_item|
+       if !(line_item.gift_card)
+            return true
+       end
+      end
+           return false
+    end
+
+    def set_default_shipping_method
+           if :check_gift_card?
+          self.update_attribute(:shipping_method_id, available_shipping_methods(:front_end).first.id)
+          self.create_shipment!
+          self.update!
+          reload
+          end
+     end
+
+
+ 
 end
