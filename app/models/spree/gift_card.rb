@@ -84,7 +84,7 @@ module Spree
              product.deleted_at = DateTime.now + 365.day
              product.save!
         #get master variant_id of the new product
-        self.variant_id=ActiveRecord::Base.connection.execute 'select  id from spree_variants WHERE sku=\'GIFT\' ORDER BY id DESC LIMIT 1'
+        self.variant_id = Spree::Variant.where(:sku => 'GIFT').order(:id).first.id rescue nil
       end
       
       def update_references
